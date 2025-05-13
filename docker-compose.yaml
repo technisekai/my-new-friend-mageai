@@ -1,6 +1,6 @@
 version: '3'
 services:
-  magic:
+  dwh-orch-magic:
     image: mageai-mod:v1.0.0
     command: mage start ${MAGEAI_PROJECT_NAME}
     env_file:
@@ -16,3 +16,18 @@ services:
     volumes:
       - .:/home/src/
     restart: on-failure:5
+
+  dwh-db-postgre:
+    image: postgres:15
+    container_name: dwh-db-postgre
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: public
+    volumes:
+      - dwh-db-volume:/var/lib/postgresql/data  
+
+volumes:
+  dwh-db-volume:
