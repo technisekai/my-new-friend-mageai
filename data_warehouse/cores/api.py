@@ -1,5 +1,4 @@
 import requests
-import json
 
 def get_from_url(url: str, headers: dict=None, data: dict=None) -> dict:
     """
@@ -15,4 +14,4 @@ def get_from_url(url: str, headers: dict=None, data: dict=None) -> dict:
     else:
         response = requests.get(url)
 
-    return json.loads(response.json())
+    return response.json()
