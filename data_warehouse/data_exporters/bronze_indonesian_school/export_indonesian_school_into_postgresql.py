@@ -7,7 +7,7 @@ if 'data_exporter' not in globals():
 
 
 @data_exporter
-def export_data_to_postgresql(data, *args, **kwargs):
+def export_indonesian_school_to_postgresql(data, *args, **kwargs):
     """
     Exports data to some source.
 
@@ -19,8 +19,6 @@ def export_data_to_postgresql(data, *args, **kwargs):
         Optionally return any object and it'll be logged and
         displayed when inspecting the block run.
     """
-    # Specify your data exporting logic here
-    # Specify your custom logic here
     db_credential = json.loads(get_secret_value('database_connections')) \
         .get("postgresql_data_warehouse_public")
     dwh_connection = postgresql_connection(
@@ -32,9 +30,11 @@ def export_data_to_postgresql(data, *args, **kwargs):
     )
     insert_into_postgres(
         destination_connect=dwh_connection, 
-        destination_schema_name="bronze",
-        destination_table_name="api_book_science",
-        data=data, 
+        destination_schema_name=kwargs['bronze_indonesian_school_config'].get("destination_schema_name"),
+        destination_table_name=kwargs['bronze_indonesian_school_config'].get("destination_table_name"),
+        unique_key_name=kwargs['bronze_indonesian_school_config'].get("source_unique_key"),
+        data=data,
+        mode='single'
     )
 
 
