@@ -1,0 +1,128 @@
+blocks:
+- all_upstream_blocks_executed: true
+  color: null
+  configuration:
+    file_source:
+      path: data_loaders/bronze_indonesian_school/load_indonesian_school_from_api.py
+  downstream_blocks:
+  - bronze_indonesian_school/convert_indonesian_school_to_scd2
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: bronze_indonesian_school/load_indonesian_school_from_api
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_loader
+  upstream_blocks: []
+  uuid: bronze_indonesian_school/load_indonesian_school_from_api
+- all_upstream_blocks_executed: true
+  color: teal
+  configuration:
+    file_source:
+      path: custom/bronze_indonesian_school/convert_indonesian_school_to_scd2.py
+  downstream_blocks:
+  - bronze_indonesian_school/create_indonesian_school_table_postgresql
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: bronze_indonesian_school/convert_indonesian_school_to_scd2
+  retry_config: null
+  status: executed
+  timeout: null
+  type: custom
+  upstream_blocks:
+  - bronze_indonesian_school/load_indonesian_school_from_api
+  uuid: bronze_indonesian_school/convert_indonesian_school_to_scd2
+- all_upstream_blocks_executed: true
+  color: teal
+  configuration:
+    file_source:
+      path: custom/bronze_indonesian_school/create_indonesian_school_table_postgresql.py
+  downstream_blocks:
+  - bronze_indonesian_school/add_columns_indonesian_school_table_postgresql
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: bronze_indonesian_school/create_indonesian_school_table_postgresql
+  retry_config: null
+  status: executed
+  timeout: null
+  type: custom
+  upstream_blocks:
+  - bronze_indonesian_school/convert_indonesian_school_to_scd2
+  uuid: bronze_indonesian_school/create_indonesian_school_table_postgresql
+- all_upstream_blocks_executed: true
+  color: teal
+  configuration:
+    file_source:
+      path: custom/bronze_indonesian_school/add_columns_indonesian_school_table_postgresql.py
+  downstream_blocks:
+  - bronze_indonesian_school/export_indonesian_school_into_postgresql
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: bronze_indonesian_school/add_columns_indonesian_school_table_postgresql
+  retry_config: null
+  status: executed
+  timeout: null
+  type: custom
+  upstream_blocks:
+  - bronze_indonesian_school/create_indonesian_school_table_postgresql
+  uuid: bronze_indonesian_school/add_columns_indonesian_school_table_postgresql
+- all_upstream_blocks_executed: true
+  color: null
+  configuration:
+    file_source:
+      path: data_exporters/bronze_indonesian_school/export_indonesian_school_into_postgresql.py
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: bronze_indonesian_school/export_indonesian_school_into_postgresql
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_exporter
+  upstream_blocks:
+  - bronze_indonesian_school/add_columns_indonesian_school_table_postgresql
+  uuid: bronze_indonesian_school/export_indonesian_school_into_postgresql
+cache_block_output_in_memory: false
+callbacks: []
+concurrency_config: {}
+conditionals: []
+created_at: '2025-06-06 16:35:12.436755+00:00'
+data_integration: null
+description: get data from https://api-sekolah-indonesia.vercel.app/sekolah?page=1&perPage=5
+  and insert to postgresql
+executor_config: {}
+executor_count: 1
+executor_type: null
+extensions: {}
+name: bronze_indonesian_school
+notification_config: {}
+remote_variables_dir: null
+retry_config: {}
+run_pipeline_in_one_process: false
+settings:
+  triggers: null
+spark_config: {}
+tags:
+- bronze
+- indonesian_school
+type: python
+uuid: bronze_indonesian_school
+variables:
+  bronze_indonesian_school_config:
+    api_url: https://api-sekolah-indonesia.vercel.app/sekolah?page=1&perPage=5
+    data_key_name: dataSekolah
+    destination_schema_name: public
+    destination_table_name: bronze_api_indonesian_school
+    source_unique_key: id
+variables_dir: /home/src/mage_data/data_warehouse
+widgets: []

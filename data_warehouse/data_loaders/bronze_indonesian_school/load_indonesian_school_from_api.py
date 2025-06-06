@@ -8,8 +8,8 @@ if 'test' not in globals():
     from mage_ai.data_preparation.decorators import test
 
 @data_loader
-def load_book_science_from_url(**kwargs):
-    url = kwargs['books_bronze_config'].get("api_url")
+def load_indonesian_school_from_url(**kwargs):
+    url = kwargs['bronze_indonesian_school_config'].get("api_url")
     return get_from_url(url)
 
 @test

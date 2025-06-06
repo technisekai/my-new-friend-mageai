@@ -1,0 +1,17 @@
+import json
+from data_warehouse.cores.scd import convert_to_scd2
+
+if 'custom' not in globals():
+    from mage_ai.data_preparation.decorators import custom
+if 'test' not in globals():
+    from mage_ai.data_preparation.decorators import test
+
+
+@custom
+def convert_indonesian_school_to_scd2(results, **kwargs):
+    data_key_name = kwargs['bronze_indonesian_school_config'].get("data_key_name")
+    return convert_to_scd2(
+        data=results[data_key_name], 
+        primary_key_name=kwargs['bronze_indonesian_school_config'].get("source_unique_key")
+    )
+
