@@ -87,7 +87,9 @@ def create_table_postgresql(
     postgresql_schema = convert_to_postgresql_schema(source_data)
     query_create_table = f"""
     create table if not exists {destination_schema_name}.{destination_table_name} (
-        {', '.join([' '.join(x) for x in zip(postgresql_schema.keys(), postgresql_schema.values())])}
+        {', '.join([' '.join(x) for x in zip(postgresql_schema.keys(), postgresql_schema.values())])},
+        _created_at timestamp null default current_timestamp,
+        _updated_at timestamp null default current_timestamp
     )
     """
     print(f"INF execute the query below {query_create_table}")
