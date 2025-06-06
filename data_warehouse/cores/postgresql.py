@@ -1,8 +1,19 @@
 import psycopg2
 from typing import Literal
-from psycopg2.extras import execute_values, Json, execute_batch
+from psycopg2.extras import execute_values, Json
 
 def postgresql_connection(host: str, port: int, user: str, password: str, database: str):
+    """
+    Create connection to postgresql database
+    Params:
+        - host: hostname or ip address database server
+        - port: port database server
+        - user: user name to login database server
+        - pass: password to login database server
+        - database: database name that will connect
+    Return:
+        postgresql connection
+    """
     connection = psycopg2.connect(
         host=host,
         port=port,
@@ -10,9 +21,19 @@ def postgresql_connection(host: str, port: int, user: str, password: str, databa
         password=password,
         database=database
     )
+    print(f"INF connection to {host} successfully created!")
     return connection
 
 def get_from_postgresql(destination_connect: postgresql_connection, query: str):
+    """
+    Get data from postgresql database
+    Params:
+        - destination_connect: connection to destination database
+        - query: query to get data. use select query
+    Return:
+        dictionary with format [{'key': 'value', 'key': {'key': 'value'}}]
+    """
+    print(f"INF get data from query below: \n{query}")
     destination_cursor = destination_connect.cursor()
     destination_cursor.execute(query)
     columns = [desc[0] for desc in destination_cursor.description]
@@ -29,9 +50,26 @@ def insert_into_postgres(
         mode: Literal["single", "batch"] = "batch",
         chunksize: int = 1000
 ):
+    """
+    Insert data into postgresql database
+    Params:
+        - destination_connect: connection to destination database
+        - destination_schema_name: schema destination where table destination in
+        - destination_table_name: table destination to inject data
+        - data: data to inject
+        - unique_key_name: key name that must be uniq in source
+        - mode:
+            batch: insert n chunksize data to table
+            single: insert row by row to table
+        - chunksize: how much data to insert into table
+    Return:
+        None, inserted data to table
+    """
     destination_cursor = destination_connect.cursor()
     if mode == "batch":
+        print(f"INF insert batch data into {destination_schema_name}.{destination_table_name}")
         for idx in range(0, len(data), chunksize):
+            print(f"{idx}", end=" ")
             columns = data[idx].keys()
             values = [[Json(row.get(col, None)) if isinstance(row.get(col, None), (dict, list)) \
                     else  row.get(col, None) \
@@ -52,7 +90,9 @@ def insert_into_postgres(
             execute_values(destination_cursor, query_merge_data, values)
             execute_values(destination_cursor, query_insert_data, values)
             destination_connect.commit()
+        print()
     elif mode == "single":
+        print(f"INF insert row by row into {destination_schema_name}.{destination_table_name}")
         for value in data:
             columns = value.keys()
             values = [
@@ -85,7 +125,7 @@ def convert_to_postgresql_schema(source_schema: dict):
     Params:
         - source_schema: source data {'key': 'value'}
     Returns:
-        - dict of postgres schema {'column': 'data type'}
+        - dict of postgres schema {'column name': 'column data type'}
     """
     postgresql_schema = {}
     for key in source_schema.keys():
@@ -100,7 +140,7 @@ def convert_to_postgresql_schema(source_schema: dict):
             postgresql_schema[key] = 'boolean'
         else:
             raise Exception(f'Err {json_type_name} data type not defined!')
-    
+    print(f"INF successfully generated postgresql schema")
     return postgresql_schema
 
 def create_table_postgresql(
@@ -110,10 +150,23 @@ def create_table_postgresql(
         destination_connect: postgresql_connection,
         if_exists: Literal['ignore', 'replace'] = 'ignore'
 ):
+    """
+    Create table in postgresql database
+    Params:
+        - destination_connect: connection to destination database
+        - destination_schema_name: schema destination where table destination in
+        - destination_table_name: table destination to inject data
+        - source_data: data to inject
+        - if_exists:
+            ignore: if table exists, dont do anything
+            replace: create new table although it's exists
+    Return:
+        None, table created
+    """
     destination_cursor = destination_connect.cursor()
     postgresql_schema = convert_to_postgresql_schema(source_data)
     if if_exists == 'replace':
-        print(f"INF drop table {destination_schema_name}.{destination_table_name}")
+        print(f"INF drop table if exists{destination_schema_name}.{destination_table_name}")
         query_drop_table = f"""
         drop table if exists {destination_schema_name}.{destination_table_name};
         """
@@ -138,6 +191,16 @@ def add_columns_postgresql(
         destination_schema_name: str, 
         destination_connect: postgresql_connection
 ):
+    """
+    Add columns in table postgresql database
+    Params:
+        - destination_connect: connection to destination database
+        - destination_schema_name: schema destination where table destination in
+        - destination_table_name: table destination to inject data
+        - source_data: data to inject
+    Return:
+        None, created columns if column in source data not exists in schema
+    """
     # Get fields not exists in table
     query_filter_schema = f"""
     select 
