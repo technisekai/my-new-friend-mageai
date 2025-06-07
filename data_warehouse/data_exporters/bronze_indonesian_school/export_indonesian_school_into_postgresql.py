@@ -10,15 +10,13 @@ if 'data_exporter' not in globals():
 def export_indonesian_school_to_postgresql(data, *args, **kwargs):
     """
     Exports data to some source.
-
-    Args:
-        data: The output from the upstream parent block
+    Params:
+        data: The output from the upstream parent block. format [{}, {}, ..., {}]
         args: The output from any additional upstream blocks (if applicable)
-
-    Output (optional):
-        Optionally return any object and it'll be logged and
-        displayed when inspecting the block run.
+    Returns:
+        None. data inserted to database
     """
+    # Create connection to database
     db_credential = json.loads(get_secret_value('database_connections')) \
         .get("postgresql_data_warehouse_public")
     dwh_connection = postgresql_connection(
@@ -28,6 +26,7 @@ def export_indonesian_school_to_postgresql(data, *args, **kwargs):
         password=db_credential.get("password"), 
         database=db_credential.get("database")
     )
+    # Insert data to database
     insert_into_postgres(
         destination_connect=dwh_connection, 
         destination_schema_name=kwargs['bronze_indonesian_school_config'].get("destination_schema_name"),
@@ -36,5 +35,7 @@ def export_indonesian_school_to_postgresql(data, *args, **kwargs):
         data=data,
         mode='single'
     )
+    # Close connection
+    dwh_connection.close()
 
 

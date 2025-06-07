@@ -10,6 +10,15 @@ if 'test' not in globals():
 
 @custom
 def create_indonesian_school_table_postgresql(values, **kwargs):
+    """
+    Create table for the data if not exists.
+    Params:
+        values: The output from the upstream parent block. format [{}, {}, ..., {}]
+        args: The output from any additional upstream blocks (if applicable)
+    Returns:
+        None. created table if not exists
+    """
+    # Create connection to database
     data_key_name = kwargs['bronze_indonesian_school_config'].get("data_key_name")
     db_credential = json.loads(get_secret_value('database_connections')) \
         .get("postgresql_data_warehouse_public")
@@ -20,6 +29,7 @@ def create_indonesian_school_table_postgresql(values, **kwargs):
         password=db_credential.get("password"), 
         database=db_credential.get("database")
     )
+    # Create table if not exists
     create_table_postgresql(
         source_data=values[-1],
         destination_schema_name=kwargs['bronze_indonesian_school_config'].get("destination_schema_name"),
@@ -27,6 +37,7 @@ def create_indonesian_school_table_postgresql(values, **kwargs):
         destination_connect=dwh_connection,
         if_exists='replace'
     )
+    # Close connection
     dwh_connection.close()
 
     return values
