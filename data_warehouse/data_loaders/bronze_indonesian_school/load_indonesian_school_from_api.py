@@ -9,6 +9,18 @@ if 'test' not in globals():
 
 @data_loader
 def load_indonesian_school_from_url(**kwargs):
+    """
+    Get data from indonesian school api 
+    Params:
+        **kwargs: The output from any additional upstream blocks (if applicable)
+    Returns:
+        dictionary with format {
+            'key': '...',
+            ...
+            'data': [{}, {}]
+        }
+    """
+    # Get data from api
     url = kwargs['bronze_indonesian_school_config'].get("api_url")
     return get_from_url(url)
 
